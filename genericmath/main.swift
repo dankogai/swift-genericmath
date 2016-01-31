@@ -18,6 +18,11 @@ test.eq(palindromeI.toString(16), palindromeS, "0x\"\(palindromeS)\"")
 test.eq(UInt128(palindromeS, base:16), palindromeI, "UInt128(\"\(palindromeS)\",base:16)")
 let u128maxDS = "UInt128(\"ffffffffffffffffffffffffffffffff\",base:16)"
 test.eq(UInt128.max.debugDescription, u128maxDS, u128maxDS)
+/*
+for i:UInt32 in 0...128 {
+    test.eq((UInt128.max >> i).msb, Int(128 - i), "(UInt128.max >> \(i)).msb = \(128-i)")
+}
+*/
 print("#### Int128")
 let i128minS = "-170141183460469231731687303715884105728"
 let i128maxS = "170141183460469231731687303715884105727"
@@ -128,8 +133,10 @@ test.eq(Float128(-2.0) < Float128(+1.0), true, "-2.0 < +1.0")
 test.eq(Float128(-2.5) < Float128(-2.0), true, "-2.5 < -2.0")
 test.eq(Float128(+2.0) < Float128(+2.5), true, "+2.0 < +2.5")
 
+/*
 print((Float128(1.0/3.0)+Float128(1.0/6.0)).asDouble)
 
 print(Float128.ldexp(Float128(1.0), 0).asDouble)
+*/
 
 test.done()

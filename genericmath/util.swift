@@ -19,3 +19,17 @@ public extension Double {
     public static func ldexp(m:Double, _ e:Int)->Double { return Darwin.ldexp(m, e) }
     #endif
 }
+public extension UInt32 {
+    /// give the location of the most significant bit + 1
+    /// 0 if none
+    public var msb:Int {
+        return Double.frexp(Double(self)).1
+    }
+}
+public extension UInt64 {
+    /// give the location of the most significant bit + 1
+    /// 0 if none
+    public var msb:Int {
+        return Double.frexp(Double(self)).1
+    }
+}

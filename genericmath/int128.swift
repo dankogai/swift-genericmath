@@ -504,8 +504,20 @@ extension UInt128 : RandomAccessIndexType {
         return self - end
     }
 }
-extension Int128: IntegerType {}
+public extension UInt128 {
+    public var msb:Int {
+        var msb = value.0.msb
+        if msb != 0 { return msb + 96 }
+        msb = value.1.msb
+        if msb != 0 { return msb + 64 }
+        msb = value.2.msb
+        if msb != 0 { return msb + 32 }
+        return value.3.msb
+    }
+}
+//
 // now let's go for signed Int128
+//
 public struct Int128 {
     var value:UInt128
     public init(_ a:UInt32, _ b:UInt32, _ c:UInt32, _ d:UInt32) {
