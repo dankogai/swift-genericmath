@@ -92,4 +92,7 @@ test.eq(Int128(genericProduct(1,16)), genericProduct(Int128(1),Int128(16)),
         test.eq(F(e)/F(b), P(b+1,e),"\(e)!/\(b)! == \(b+1)P\(e)")
     }
 })()
+// check if they are correctly arithmetic-shifting
+test.eq(Int128(-1)<<1, Int128(-2), "Int128(-1)<<1 == Int128(-2)")
+test.eq(Int128(-2)>>1, Int128(-1), "Int128(-2)>>1 == Int128(-1)")
 test.done()

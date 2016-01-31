@@ -575,30 +575,36 @@ public func &-(lhs:Int128, rhs:Int128)->Int128 {
 public func -(lhs:Int128, rhs:Int128)->Int128 {
     return lhs + (-rhs)
 }
-public func abs(i:Int128)->Int128 {
-    return i.isSignMinus ? -i : i
+extension Int128: AbsoluteValuable {
+    public var abs:Int128 {
+        return self.isSignMinus ? -self : self
+    }
+    public static func abs(x: Int128) -> Int128 {
+        return x.abs
+    }
 }
+public func abs(i:Int128)->Int128 { return i.abs }
 extension Int128: Comparable {}
 public func <(lhs:Int128, rhs:Int128)->Bool {
     if lhs.isSignMinus == rhs.isSignMinus {
-        return abs(lhs).value < abs(rhs).value
+        return lhs.abs.value < rhs.abs.value
     }
     return lhs.isSignMinus ? true : false
 }
 public extension Int128 {
     public static func multiplyWithOverflow(lhs:Int128, _ rhs:Int32)->(Int128, overflow:Bool) {
         let isSignMinus = lhs.isSignMinus ? rhs < 0 ? false : true : rhs < 0 ? true : false
-        let (r, o) = UInt128.multiplyWithOverflow(abs(lhs).value, UInt32(abs(rhs)))
+        let (r, o) = UInt128.multiplyWithOverflow(lhs.abs.value, UInt32(Swift.abs(rhs)))
         return (isSignMinus ? -Int128(r) : Int128(r) , o)
     }
     public static func multiplyWithOverflow(lhs:Int128, _ rhs:Int64)->(Int128, overflow:Bool) {
         let isSignMinus = lhs.isSignMinus ? rhs < 0 ? false : true : rhs < 0 ? true : false
-        let (r, o) = UInt128.multiplyWithOverflow(abs(lhs).value, UInt64(abs(rhs)))
+        let (r, o) = UInt128.multiplyWithOverflow(lhs.abs.value, UInt64(Swift.abs(rhs)))
         return (isSignMinus ? -Int128(r) : Int128(r) , o)
     }
     public static func multiplyWithOverflow(lhs:Int128, _ rhs:Int128)->(Int128, overflow:Bool) {
         let isSignMinus = lhs.isSignMinus ? rhs.isSignMinus ? false : true : rhs.isSignMinus ? true : false
-        let (r, o) = UInt128.multiplyWithOverflow(abs(lhs).value, abs(rhs).value)
+        let (r, o) = UInt128.multiplyWithOverflow(lhs.abs.value, rhs.abs.value)
         return (isSignMinus ? -Int128(r) : Int128(r) , o)
     }
 }
@@ -661,17 +667,17 @@ extension Int128 : CustomStringConvertible, CustomDebugStringConvertible, Hashab
 }
 public func divmod(lhs:Int128, _ rhs:Int32)->(Int128, Int32) {
     let isSignMinus = lhs.isSignMinus ? rhs < 0 ? false : true : rhs < 0 ? true : false
-    let (q, r) = divmod(abs(lhs).value, UInt32(abs(rhs)))
+    let (q, r) = divmod(lhs.abs.value, UInt32(Swift.abs(rhs)))
     return (isSignMinus ? -Int128(q) : Int128(q) , lhs.isSignMinus ? -Int32(r) : Int32(r))
 }
 public func divmod(lhs:Int128, _ rhs:Int64)->(Int128, Int64) {
     let isSignMinus = lhs.isSignMinus ? rhs < 0 ? false : true : rhs < 0 ? true : false
-    let (q, r) = divmod(abs(lhs).value, UInt64(abs(rhs)))
+    let (q, r) = divmod(lhs.abs.value, UInt64(Swift.abs(rhs)))
     return (isSignMinus ? -Int128(q) : Int128(q) , lhs.isSignMinus ? -Int64(r) : Int64(r))
 }
 public func divmod(lhs:Int128, _ rhs:Int128)->(Int128, Int128) {
     let isSignMinus = lhs.isSignMinus ? rhs.isSignMinus ? false : true : rhs.isSignMinus ? true : false
-    let (q, r) = divmod(abs(lhs).value, abs(rhs).value)
+    let (q, r) = divmod(lhs.abs.value, rhs.abs.value)
     // print(q, r, isSignMinus, lhs.isSignMinus)
     return (isSignMinus ? -Int128(q) : Int128(q) , lhs.isSignMinus ? -Int128(r) : Int128(r))
 }
@@ -721,10 +727,12 @@ public func ^ (lhs:Int128, rhs:Int128)->Int128 {
     return Int128(lhs.value ^ rhs.value)
 }
 public func <<(lhs:Int128, rhs:Int128)->Int128 {
-    return Int128(lhs.value << rhs.value)
+    let u = lhs.abs.value << rhs.abs.value
+    return lhs.isSignMinus ? -Int128(u) : Int128(u)
 }
 public func >>(lhs:Int128, rhs:Int128)->Int128 {
-    return Int128(lhs.value >> rhs.value)
+    let u = lhs.abs.value >> rhs.abs.value
+    return lhs.isSignMinus ? -Int128(u) : Int128(u)
 }
 // and [+-*/%]=
 public func +=(inout lhs:Int128, rhs:Int128) {
