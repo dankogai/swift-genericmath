@@ -16,6 +16,8 @@ let palindromeI  = UInt128(0x0123456789abcdef, 0xfedcba9876543210)
 let palindromeS =  "123456789abcdeffedcba9876543210"
 test.eq(palindromeI.toString(16), palindromeS, "0x\"\(palindromeS)\"")
 test.eq(UInt128(palindromeS, base:16), palindromeI, "UInt128(\"\(palindromeS)\",base:16)")
+let u128maxDS = "UInt128(\"ffffffffffffffffffffffffffffffff\",base:16)"
+test.eq(UInt128.max.debugDescription, u128maxDS, u128maxDS)
 print("#### Int128")
 let i128minS = "-170141183460469231731687303715884105728"
 let i128maxS = "170141183460469231731687303715884105727"
@@ -24,6 +26,10 @@ test.eq(Int128(i128minS), Int128.min, "Int128(\"\(i128minS)\") == Int128.min")
 test.eq(Int128.max.description, i128maxS, "Int128.max == \(i128maxS)")
 test.eq(Int128(i128maxS), Int128.max, "Int128(\"\(i128maxS)\") == Int128.max")
 test.eq(Int128("+"+i128maxS), Int128.max, "Int128(\"+\(i128maxS)\") == Int128.max")
+let i128minDS = "Int128(\"-80000000000000000000000000000000\",base:16)"
+let i128maxDS = "Int128(\"7fffffffffffffffffffffffffffffff\",base:16)"
+test.eq(Int128.min.debugDescription, i128minDS, i128minDS)
+test.eq(Int128.max.debugDescription, i128maxDS, i128maxDS)
 test.eq(Int128.min + Int128.max, Int128(-1),    "Int128.min + Int128.max == -1")
 test.ok(Int128.min < Int128.max, "Int128.min < Int128.max")
 test.ok(abs(Int128.min+Int128(1)) > abs(Int128.max-Int128(1)),   "abs(Int128.min+1) > abs(Int128.max-1)")
@@ -72,7 +78,7 @@ func genericProduct<N:Integer>(b:N, _ e:N)->N {
 }
 test.eq(Int128(genericSum(1,100)), genericSum(Int128(1),Int128(100)),
         "Int128(genericSum(1,100)) == genericSum(Int128(1),Int128(100))")
-test.eq(Int128(genericProduct(1,16)), genericSum(Int128(1),Int128(16)),
+test.eq(Int128(genericProduct(1,16)), genericProduct(Int128(1),Int128(16)),
         "Int128(genericProduct(1,16)) == genericProduct(Int128(1),Int128(16))")
 ({
     func P(start:Int128, _ end:Int128)->Int128 {

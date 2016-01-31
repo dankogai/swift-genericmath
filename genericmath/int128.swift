@@ -90,13 +90,6 @@ public extension UInt {
         self.init(UInt64(u128))
     }
 }
-/*
-extension UInt128: CustomDebugStringConvertible {
-    public var debugDescription:String {
-        return "\(value)"
-    }
-}
-*/
 // let's make it equatable
 extension UInt128: Equatable {}
 public func ==(lhs:UInt128, rhs:UInt128)->Bool {
@@ -348,7 +341,7 @@ public func divmod(lhs:UInt128, _ rhs:UInt32)->(UInt128, UInt32) {
     return (r, UInt32(r3 % rhs64))
 }
 // with divmod(_:UInt128, _:UInt32)->(UInt128, UInt32) we can stringify
-extension UInt128 : CustomStringConvertible, Hashable {
+extension UInt128 : CustomStringConvertible, CustomDebugStringConvertible, Hashable {
     public static let int2char = Array("0123456789abcdefghijklmnopqrstuvwxyz".characters)
     public func toString(base:Int = 10)-> String {
         guard 2 <= base && base <= 36 else {
@@ -366,6 +359,9 @@ extension UInt128 : CustomStringConvertible, Hashable {
     }
     public var description:String {
         return self.toString()
+    }
+    public var debugDescription:String {
+        return "UInt128(\"" + self.toString(16) + "\",base:16)"
     }
     public static let char2int:[Character:Int] = {
         var result = [Character:Int]()
@@ -636,7 +632,7 @@ public func *(lhs:Int128, rhs:Int128)->Int128 {
     }
     return r
 }
-extension Int128 : CustomStringConvertible, Hashable {
+extension Int128 : CustomStringConvertible, CustomDebugStringConvertible, Hashable {
     public func toString(base:Int = 10)-> String {
         if self.isSignMinus {
             return "-" + (-self).value.toString(base)
@@ -646,6 +642,9 @@ extension Int128 : CustomStringConvertible, Hashable {
     }
     public var description:String {
         return self.toString()
+    }
+    public var debugDescription:String {
+        return "Int128(\"" + self.toString(16) + "\",base:16)"
     }
     public init(_ s:String, base:Int = 10) {
         self.init(0)
