@@ -90,6 +90,11 @@ public extension UInt {
         self.init(UInt64(u128))
     }
 }
+public extension Int {
+    public init(_ u128:UInt128) {
+        self.init(UInt64(u128))
+    }
+}
 // let's make it equatable
 extension UInt128: Equatable {}
 public func ==(lhs:UInt128, rhs:UInt128)->Bool {
@@ -488,6 +493,17 @@ public func /=(inout lhs:UInt128, rhs:UInt128) {
 public func %=(inout lhs:UInt128, rhs:UInt128) {
     lhs = lhs + rhs
 }
+extension UInt128 : IntegerArithmeticType {
+    public static func divideWithOverflow(lhs:UInt128, _ rhs:UInt128)->(UInt128, overflow:Bool) {
+        return (divmod(lhs, rhs).0, false)
+    }
+    public static func remainderWithOverflow(lhs:UInt128, _ rhs:UInt128)->(UInt128, overflow:Bool) {
+        return (divmod(lhs, rhs).1, false)
+    }
+    public func toIntMax()->IntMax {
+        return IntMax.max
+    }
+}
 extension UInt128 : RandomAccessIndexType {
     public typealias Distance = Int.Distance
     public func successor() -> UInt128 {
@@ -498,13 +514,21 @@ extension UInt128 : RandomAccessIndexType {
     }
     public typealias Stride = Distance
     public func advancedBy(n: Stride) -> UInt128 {
-        return self + n
+        return self + UInt128(n)
     }
     public func distanceTo(end: UInt128) -> Stride {
-        return self - end
+        return Distance(self) - Distance(end)
     }
 }
+extension UInt128 : UnsignedIntegerType {
+    public func toUIntMax()->UIntMax {
+        return UIntMax.max
+    }
+}
+// aux. stuff
 public extension UInt128 {
+    /// give the location of the most significant bit + 1
+    /// 0 if none
     public var msb:Int {
         var msb = value.0.msb
         if msb != 0 { return msb + 96 }

@@ -20,14 +20,14 @@ public extension Double {
     #endif
 }
 public extension UInt32 {
-    /// give the location of the most significant bit + 1
+    /// give the location of the most significant bit + 1.
     /// 0 if none
     public var msb:Int {
         return Double.frexp(Double(self)).1
     }
 }
 public extension UInt64 {
-    /// give the location of the most significant bit + 1
+    /// give the location of the most significant bit + 1.
     /// 0 if none
     public var msb:Int {
         return Double.frexp(Double(self)).1

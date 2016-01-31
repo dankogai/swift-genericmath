@@ -43,11 +43,11 @@ public struct Float128 {
         return self.isNaN ? false : value.value.0 & 0x8000_0000 != 0
     }
     public var isZero:Bool {
-        return (value.value.0 & 0x7fff_ffff) == 0
+        return (value.value.0 & 0x7fff_ffff == 0)
             && value.value.1 == 0 && value.value.2 == 0 && value.value.3 == 0
     }
     public var isInfinite:Bool {
-        return (value.value.0 == 0x7fff_0000 ||  value.value.0 == 0xffff_0000)
+        return (value.value.0 & 0x7fff_ffff == 0x7fff_0000)
             && value.value.1 == 0 && value.value.2 == 0 && value.value.3 == 0
     }
     public var isFinite:Bool {
@@ -116,6 +116,11 @@ public struct Float128 {
         return result
     }
     //
+    public var isPowerOf2:Bool {
+        return (value.value.0 & 0x7fff_ffff == 0x7fff_0000) // not inf or nan
+            && value.value.0 & 0x0000ffff == 0
+            && value.value.1 == 0 && value.value.2 == 0 && value.value.3 == 0
+    }
     static let mmask = ~UInt128(0xffff0000,0,0,0)
     static let sbits = 110
 }
