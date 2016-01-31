@@ -95,4 +95,12 @@ test.eq(Int128(genericProduct(1,16)), genericProduct(Int128(1),Int128(16)),
 // check if they are correctly arithmetic-shifting
 test.eq(Int128(-1)<<1, Int128(-2), "Int128(-1)<<1 == Int128(-2)")
 test.eq(Int128(-2)>>1, Int128(-1), "Int128(-2)>>1 == Int128(-1)")
+//
+print("#### UInt128")
+debugPrint(Float128(1.0))
+debugPrint(Float128(-2.0))
+debugPrint(Float128(1.0/3.0))
+
+
+
 test.done()

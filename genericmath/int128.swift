@@ -168,13 +168,13 @@ public func <<(lhs:UInt128, rhs:UInt32)->UInt128 {
         return UInt128(lhs.value.1, lhs.value.2, lhs.value.3, 0)
     }
     var r = UInt128()
-    let r3 = UInt64(lhs.value.3 << rhs)
+    let r3 = (UInt64(lhs.value.3) << UInt64(rhs))
     r.value.3 = UInt32(r3 & 0xffffFFFF)
-    let r2 = UInt64(lhs.value.2 << rhs) | (r3 >> 32)
+    let r2 = (UInt64(lhs.value.2) << UInt64(rhs)) | (r3 >> 32)
     r.value.2 = UInt32(r2 & 0xffffFFFF)
-    let r1 = UInt64(lhs.value.1 << rhs) | (r2 >> 32)
+    let r1 = (UInt64(lhs.value.1) << UInt64(rhs)) | (r2 >> 32)
     r.value.1 = UInt32(r1 & 0xffffFFFF)
-    let r0 = UInt64(lhs.value.0 << rhs) | (r1 >> 32)
+    let r0 = (UInt64(lhs.value.0) << UInt64(rhs)) | (r1 >> 32)
     r.value.0 = UInt32(r0 & 0xffffFFFF)
     return r
 }
@@ -760,15 +760,15 @@ public func <<(lhs:Int128, rhs:Int128)->Int128 {
     let u = lhs.abs.value << rhs.abs.value
     return lhs.isSignMinus ? -Int128(u) : Int128(u)
 }
-public func <<=(inout lhs:Int128, rhs:Int128)->Int128 {
+public func <<=(inout lhs:Int128, rhs:Int128) {
     lhs = lhs << rhs
 }
 public func >>(lhs:Int128, rhs:Int128)->Int128 {
     let u = lhs.abs.value >> rhs.abs.value
     return lhs.isSignMinus ? -Int128(u) : Int128(u)
 }
-public func >>=(inout lhs:Int128, rhs:Int128)->Int128 {
-    lhs = lhs >>= rhs
+public func >>=(inout lhs:Int128, rhs:Int128) {
+    lhs = lhs >> rhs
 }
 // and [+-*/%]=
 public func +=(inout lhs:Int128, rhs:Int128) {
