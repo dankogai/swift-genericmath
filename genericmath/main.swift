@@ -110,17 +110,10 @@ test.eq(Float128.NaN.isNaN,                 true,   "Float128.NaN is NaN")
 test.eq(Float128.quietNaN.isNaN,            true,   "Float128.quietNaN is NaN")
 test.ne(Float128.NaN, Float128.NaN,                 "Float128.NaN != itself")
 test.ne(Float128.quietNaN, Float128.quietNaN,       "Float128.quetNaN != itself")
-
-/*
-print(Float128(1.0))
-print(Float128(-2.0))
-print(Float128(1.0/3.0))
-
-print(Float128(1.0).frexp)
-
-print(Double(Float128(1.0)))
-print(Double(Float128(-2.0)))
-print(Double(Float128(1.0/3.0)))
-*/
-
+test.eq(Float128(-Double.infinity) < Float128(+Double.infinity), true, "-infinity < + infinity")
+test.eq(Float128(-Double.infinity) < Float128(0), true, "-infinity < 0")
+test.eq(Float128(0) < Float128(+Double.infinity), true, "0 < +infinity")
+test.eq(Float128(-2.0) < Float128(+1.0), true, "-2.0 < +1.0")
+test.eq(Float128(-2.5) < Float128(-2.0), true, "-2.5 < -2.0")
+test.eq(Float128(+2.0) < Float128(+2.5), true, "+2.0 < +2.5")
 test.done()

@@ -45,7 +45,7 @@ public struct Float128 {
     }
     public init(_ f:Float) { self.init(Double(f)) }
     public var isSignMinus:Bool {
-        return value.value.0 & 0x8000_0000 != 0
+        return self.isNaN ? false : value.value.0 & 0x8000_0000 != 0
     }
     public var isZero:Bool {
         return (value.value.0 & 0x7fff_ffff) == 0
@@ -60,11 +60,28 @@ public struct Float128 {
     }
     public static let infinity = Float128(rawValue:UInt128(0x7fff_0000, 0, 0, 0))
     public var isNaN:Bool {
-        return (value.value.0 & 0x7fff_ffff == 0x7fff_0000)
-            && (value.value.1 != 0 || value.value.2 != 0 || value.value.3 == 0)
+        return value.value.0 == 0x7fff_8000
     }
-    public static let NaN = Float128(rawValue:UInt128(0x7fff_0000, 0x8000_0000, 0, 0))
-    public static let quietNaN = Float128(rawValue:UInt128(0x7fff_0000, 0x8000_0000, 0, 0))
+    public static let NaN = Float128(rawValue:UInt128(0x7fff_8000, 0, 0, 0))
+    public static let quietNaN = Float128(rawValue:UInt128(0x7fff_8000, 0, 0, 0))
+    // as Double
+    public var asDouble:Double {
+        if self.isZero {
+            return self.isSignMinus ? -0.0 : +0.0
+        } else if self.isInfinite {
+            return self.isSignMinus ? -Double.infinity : +Double.infinity
+        } else if self.isNaN {
+           return Double.NaN
+        } else {
+            let (m, e) = self.frexp
+            let mt = m.value >> 60
+            var mu = (UInt64(mt.value.2 & 0x000f_ffff) << 32) | UInt64(mt.value.3)
+            mu |= 0x3fe0_0000_0000_0000
+            print("mu:", String(format:"%016lx", mu), "e:", e)
+            let result = Double.ldexp(unsafeBitCast(mu, Double.self), e)
+            return self.isSignMinus ? -result : +result
+        }
+    }
     // no signal yet
     public var isSignaling:Bool { return false }
     // always normal for the time being
@@ -106,19 +123,7 @@ public struct Float128 {
     }
 }
 public extension Double {
-    public init(_ f128:Float128) {
-        if f128.isZero {
-            self = 0.0
-        } else {
-            let (m, e) = f128.frexp
-            let mt = m.value >> 60
-            var mu = (UInt64(mt.value.2 & 0x000f_ffff) << 32) | UInt64(mt.value.3)
-            mu |= 0x3fe0_0000_0000_0000
-            print("mu:", String(format:"%016lx", mu), "e:", e)
-            self = Double.ldexp(unsafeBitCast(mu, Double.self), e)
-        }
-        if f128.isSignMinus { self *= -1 }
-    }
+    public init(_ f128:Float128) { self = f128.asDouble }
 }
 
 extension Float128 : CustomDebugStringConvertible, CustomStringConvertible  {
@@ -133,7 +138,13 @@ extension Float128 : CustomDebugStringConvertible, CustomStringConvertible  {
 
 extension Float128: Equatable {}
 public func == (lhs:Float128, rhs:Float128)->Bool {
-    guard !lhs.isNaN && !rhs.isNaN else {
+    if lhs.isZero && rhs.isZero {
+        return true
+    }
+    if lhs.isInfinite && rhs.isInfinite {
+        return lhs.isSignMinus == rhs.isSignMinus
+    }
+    if lhs.isNaN || rhs.isNaN {
         return false
     }
     return lhs.value == rhs.value
@@ -142,7 +153,17 @@ public func == (lhs:Float128, rhs:Float128)->Bool {
 extension Float128: Comparable {}
 public func <(lhs:Float128, rhs:Float128)->Bool {
     if lhs.isSignMinus == rhs.isSignMinus {
-        return lhs.abs.value < rhs.abs.value
+        let (ml, el) = lhs.frexp
+        let (mr, er) = rhs.frexp
+        if el == er {
+            return lhs.isSignMinus
+                ? ml.abs.value > mr.abs.value
+                : ml.abs.value < mr.abs.value
+        } else {
+            return lhs.isSignMinus
+                ? el > er
+                : el < er
+        }
     }
     return lhs.isSignMinus ? true : false
 }
