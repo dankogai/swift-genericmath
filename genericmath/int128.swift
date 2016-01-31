@@ -59,11 +59,14 @@ public struct UInt128 {
         )
     }
 }
-extension UInt128: IntegerLiteralConvertible {
+extension UInt128: IntegerLiteralConvertible, _BuiltinIntegerLiteralConvertible {
     public typealias IntegerLiteralType = UInt64.IntegerLiteralType
     public init(integerLiteral literal:IntegerLiteralType) {
         (value.0, value.1) = (0, 0)
         (value.2, value.3) = (UInt32(literal >> 32), UInt32(literal & 0xffffFFFF))
+    }
+    public init(_builtinIntegerLiteral value:_MaxBuiltinIntegerType) {
+        self.init(UInt64(_builtinIntegerLiteral: value))
     }
 }
 public extension UInt32 {
@@ -212,6 +215,9 @@ public func >>(lhs:UInt128, rhs:UInt128)->UInt128 {
 }
 // and other bitwise ops
 // let us define other binops as well
+extension UInt128 : BitwiseOperationsType {
+    public static var allZeros: UInt128 { return UInt128(0) }
+}
 public func & (lhs:UInt128, rhs:UInt128)->UInt128 {
     return UInt128(
             lhs.value.0 & rhs.value.0,
@@ -342,7 +348,7 @@ public func divmod(lhs:UInt128, _ rhs:UInt32)->(UInt128, UInt32) {
     return (r, UInt32(r3 % rhs64))
 }
 // with divmod(_:UInt128, _:UInt32)->(UInt128, UInt32) we can stringify
-extension UInt128 : CustomStringConvertible {
+extension UInt128 : CustomStringConvertible, Hashable {
     public static let int2char = Array("0123456789abcdefghijklmnopqrstuvwxyz".characters)
     public func toString(base:Int = 10)-> String {
         guard 2 <= base && base <= 36 else {
@@ -375,6 +381,9 @@ extension UInt128 : CustomStringConvertible {
                 self = self*UInt128(base) + UInt128(d)
             }
         }
+    }
+    public var hashValue : Int {    // slow but steady
+        return self.description.hashValue
     }
 }
 // now let's divide by larger values
@@ -477,6 +486,7 @@ extension UInt128 : RandomAccessIndexType {
         return self - end
     }
 }
+extension Int128: IntegerType {}
 // now let's go for signed Int128
 public struct Int128 {
     var value:UInt128
@@ -518,10 +528,13 @@ public struct Int128 {
         return value.value.0 & 0x8000_0000 != 0
     }
 }
-extension Int128: IntegerLiteralConvertible {
+extension Int128: IntegerLiteralConvertible, _BuiltinIntegerLiteralConvertible {
     public typealias IntegerLiteralType = Int.IntegerLiteralType
     public init(integerLiteral value:IntegerLiteralType) {
         self.init(value)
+    }
+    public init(_builtinIntegerLiteral value:_MaxBuiltinIntegerType) {
+        self.init(UInt64(_builtinIntegerLiteral: value))
     }
 }
 extension Int128: Equatable {}
@@ -623,7 +636,7 @@ public func *(lhs:Int128, rhs:Int128)->Int128 {
     }
     return r
 }
-extension Int128 : CustomStringConvertible {
+extension Int128 : CustomStringConvertible, Hashable {
     public func toString(base:Int = 10)-> String {
         if self.isSignMinus {
             return "-" + (-self).value.toString(base)
@@ -642,6 +655,9 @@ extension Int128 : CustomStringConvertible {
         } else {
             value = UInt128(s, base:base)
         }
+    }
+    public var hashValue : Int {    // slow but steady
+        return self.description.hashValue
     }
 }
 public func divmod(lhs:Int128, _ rhs:Int32)->(Int128, Int32) {
@@ -690,6 +706,9 @@ extension Int128 : IntegerArithmeticType {
     }
 }
 // bitwise ops
+extension Int128 : BitwiseOperationsType {
+    public static var allZeros: Int128 { return Int128(0) }
+}
 public prefix func ~(i:Int128)->Int128 {
     return Int128(~i.value)
 }
@@ -740,3 +759,4 @@ extension Int128 : RandomAccessIndexType {
         return self - end
     }
 }
+extension Int128: SignedIntegerType {}

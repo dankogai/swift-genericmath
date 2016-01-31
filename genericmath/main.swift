@@ -54,9 +54,29 @@ test.eq(-Int128(pp127) / +Int128(pp95), -Int128(aqo127_95), "-\(pp127) / \(pp95)
 test.eq(-Int128(pp127) % +Int128(pp95), -Int128(aro127_95), "-\(pp127) % \(pp95) +\(aro127_95)")
 test.eq(-Int128(pp127) / -Int128(pp95), +Int128(aqo127_95), "-\(pp127) / \(pp95) +\(aqo127_95)")
 test.eq(-Int128(pp127) % -Int128(pp95), -Int128(aro127_95), "-\(pp127) % \(pp95) -\(aro127_95)")
+// check generics
+protocol Integer: IntegerArithmeticType, SignedIntegerType {
+    init(_:Self)
+}
+extension Int: Integer {}
+extension Int128: Integer {}
+func genericSum<N:Integer>(b:N, _ e:N)->N {
+    if b > e { return genericSum(e, b) }
+    return (b...e).reduce(N(0), combine:+)
+    
+}
+func genericProduct<N:Integer>(b:N, _ e:N)->N {
+    if b > e { return genericProduct(e, b) }
+    return (b...e).reduce(N(1), combine:*)
+
+}
+test.eq(Int128(genericSum(1,100)), genericSum(Int128(1),Int128(100)),
+        "Int128(genericSum(1,100)) == genericSum(Int128(1),Int128(100))")
+test.eq(Int128(genericProduct(1,16)), genericSum(Int128(1),Int128(16)),
+        "Int128(genericProduct(1,16)) == genericProduct(Int128(1),Int128(16))")
 ({
     func P(start:Int128, _ end:Int128)->Int128 {
-        return (start...end).reduce(1,combine:*)
+        return genericProduct(start,end)
     }
     func F(n:Int128)->Int128 {
         return n < 2 ? 1 : (2...n).reduce(1,combine:*)
