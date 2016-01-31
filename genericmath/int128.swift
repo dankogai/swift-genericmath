@@ -85,6 +85,14 @@ public extension UInt64 {
         self = UInt64(u128.value.2) << 32 + UInt64(u128.value.3)
     }
 }
+public extension Int64 {
+    public init(_ u128:UInt128) {
+        guard u128 <= UInt128(Int64.max) else {
+            fatalError("\(u128) > Int64.max")
+        }
+        self.init(UInt64(u128))
+    }
+}
 public extension UInt {
     public init(_ u128:UInt128) {
         self.init(UInt64(u128))
@@ -92,7 +100,7 @@ public extension UInt {
 }
 public extension Int {
     public init(_ u128:UInt128) {
-        self.init(UInt64(u128))
+        self.init(Int64(u128))
     }
 }
 // let's make it equatable
@@ -501,7 +509,7 @@ extension UInt128 : IntegerArithmeticType {
         return (divmod(lhs, rhs).1, false)
     }
     public func toIntMax()->IntMax {
-        return IntMax.max
+        return IntMax(self)
     }
 }
 extension UInt128 : RandomAccessIndexType {
@@ -522,7 +530,7 @@ extension UInt128 : RandomAccessIndexType {
 }
 extension UInt128 : UnsignedIntegerType {
     public func toUIntMax()->UIntMax {
-        return UIntMax.max
+        return UIntMax(self)
     }
 }
 // aux. stuff
@@ -581,6 +589,15 @@ public struct Int128 {
     public var isSignMinus:Bool {
         return value.value.0 & 0x8000_0000 != 0
     }
+}
+public extension Int64 {
+    public init(_ i128:Int128) {
+        guard i128.abs <= Int128(Int64.max) else {
+            fatalError("\(i128) > Int64.max")
+        }
+        self.init(Int64(i128))
+    }
+    
 }
 extension Int128: IntegerLiteralConvertible, _BuiltinIntegerLiteralConvertible {
     public typealias IntegerLiteralType = Int.IntegerLiteralType
@@ -765,7 +782,7 @@ extension Int128 : IntegerArithmeticType {
         return (divmod(lhs, rhs).1, false)
     }
     public func toIntMax()->IntMax {
-        return IntMax.max
+        return IntMax(self)
     }
 }
 // bitwise ops
