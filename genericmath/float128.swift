@@ -8,23 +8,12 @@
 
 // cf. https://en.wikipedia.org/wiki/Quadruple-precision_floating-point_format
 
-#if os(Linux)
-    import Glibc
-#else
-    import Darwin
-#endif
-public extension Double {
-    #if os(Linux)
-    public static func frexp(d:Double)->(Double, Int) { return Glibc.frexp(d) }
-    #else
-    public static func frexp(d:Double)->(Double, Int)   { return Darwin.frexp(d) }
-    public static func ldexp(m:Double, _ e:Int)->Double { return Darwin.ldexp(m, e) }
-    #endif
-}
-import Foundation
-
+// import Foundation
 public struct Float128 {
     var value:UInt128
+    public init() {
+        value = UInt128(0)
+    }
     public init(_ f128:Float128) {
         self.value = f128.value
     }
@@ -32,16 +21,22 @@ public struct Float128 {
         self.value = u128
     }
     public init(_ d:Double) {
-        value = UInt128(0)
-        if !d.isZero {
-            let (m, e) = Double.frexp(d)
-            value.value.0 |= UInt32( e - 1 + 0x3fff ) << 16
-            let mb = unsafeBitCast(m, UInt64.self) & 0x000f_ffff_ffff_ffff
-            // print(String(format:"%016lx", mb))
-            // debugPrint(UInt128(mb) << 40)
-            value |= UInt128(mb) << 60
+        if d.isNaN {
+            self.init(Float128.NaN)
+        } else if d.isInfinite {
+            self.init(d.isSignMinus ? -Float128.infinity : +Float128.infinity)
+        } else {
+            self.init()
+            if !d.isZero {
+                let (m, e) = Double.frexp(d)
+                value.value.0 |= UInt32( e - 1 + 0x3fff ) << 16
+                let mb = unsafeBitCast(m, UInt64.self) & 0x000f_ffff_ffff_ffff
+                // print(String(format:"%016lx", mb))
+                // debugPrint(UInt128(mb) << 40)
+                value |= UInt128(mb) << 60
+            }
+            if d.isSignMinus { self = -self }
         }
-        if d.isSignMinus { self = -self }
     }
     public init(_ f:Float) { self.init(Double(f)) }
     public var isSignMinus:Bool {
@@ -77,7 +72,7 @@ public struct Float128 {
             let mt = m.value >> 60
             var mu = (UInt64(mt.value.2 & 0x000f_ffff) << 32) | UInt64(mt.value.3)
             mu |= 0x3fe0_0000_0000_0000
-            print("mu:", String(format:"%016lx", mu), "e:", e)
+            // print("mu:", String(format:"%016lx", mu), "e:", e)
             let result = Double.ldexp(unsafeBitCast(mu, Double.self), e)
             return self.isSignMinus ? -result : +result
         }
@@ -116,11 +111,13 @@ public struct Float128 {
         if m.isZero || m.isInfinite || m.isNaN {
             return m
         }
-        var (result, ex) = m.frexp
-        ex += e
-        result.value.value.0 |= UInt32(ex - 1 + 0x3FFF) << 16
+        var result = m.frexp.0
+        result.value.value.0 |= UInt32(e - 1 + 0x3FFF) << 16
         return result
     }
+    //
+    static let mmask = ~UInt128(0xffff0000,0,0,0)
+    static let sbits = 110
 }
 public extension Double {
     public init(_ f128:Float128) { self = f128.asDouble }
@@ -179,7 +176,35 @@ extension Float128: SignedNumberType {}
 public prefix func + (f128:Float128)->Float128 {
     return f128
 }
+public func + (lhs:Float128, rhs:Float128)->Float128 {
+    let (ml, el) = lhs.frexp
+    let (mr, er) = rhs.frexp
+    var vl = ml.value & Float128.mmask
+    var vr = mr.value & Float128.mmask
+    let shift = el - er
+    var e = el
+    print("vl=\(vl.toString(16)), vr=\(vr.toString(16)), el=\(el), er=\(er),shift=\(shift)")
+    if (shift < 0) {
+        if shift > Float128.sbits { return rhs }
+        e = er
+        vl >>= UInt32(-shift)
+    } else if (shift > 0) {
+        if shift > Float128.sbits { return lhs }
+        e = el
+        vr >>= UInt32(+shift)
+    }
+    print("vl=\(vl.toString(16)), vr=\(vr.toString(16)), e=\(e)")
+    var v = vl + vr
+    v.value.0 += 0x00008000 // implicit one
+    print(" v=\(v.toString(16))")
+    v.value.0 |= 0x3ffe_0000
+    print(" v=\(v.toString(16)), e-1=\(e-1)")
+    print(Float128(rawValue: v).asDouble)
+    let result = Float128.ldexp(Float128(rawValue: v), e)
+    return result
+}
 public prefix func - (f128:Float128)->Float128 {
+    guard !f128.isNaN else { return f128 }
     var result = f128
     result.value.value.0 |= 0x8000_0000
     return result

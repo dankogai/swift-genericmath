@@ -97,7 +97,18 @@ test.eq(Int128(-1)<<1, Int128(-2), "Int128(-1)<<1 == Int128(-2)")
 test.eq(Int128(-2)>>1, Int128(-1), "Int128(-2)>>1 == Int128(-1)")
 //
 print("#### Float128")
-
+#if os(Linux)
+    import Glibc
+#else
+    import Darwin
+#endif
+[
+    +0.0, -0.0, +Double.infinity, -Double.infinity, +1.0/7.0, -1.0/7.0,
+    M_PI, M_E, M_LN2, M_LN10, M_SQRT2, M_SQRT1_2,
+    DBL_MAX, DBL_MIN
+].forEach {
+    test.eq(Float128($0).asDouble, $0,   "Float128(\($0)).asDouble == \($0)")
+}
 test.eq((+Float128(0.0)).isZero,            true,   "+Float128(0.0) is Zero")
 test.eq((-Float128(0.0)).isZero,            true,   "-Float128(0.0) is Zero")
 test.eq((+Float128(0.0)).isSignMinus,       false,  "+Float128(0.0) is positive")
@@ -110,10 +121,15 @@ test.eq(Float128.NaN.isNaN,                 true,   "Float128.NaN is NaN")
 test.eq(Float128.quietNaN.isNaN,            true,   "Float128.quietNaN is NaN")
 test.ne(Float128.NaN, Float128.NaN,                 "Float128.NaN != itself")
 test.ne(Float128.quietNaN, Float128.quietNaN,       "Float128.quetNaN != itself")
-test.eq(Float128(-Double.infinity) < Float128(+Double.infinity), true, "-infinity < + infinity")
+test.eq(Float128(-Double.infinity) < Float128(+Double.infinity), true, "-infinity < +infinity")
 test.eq(Float128(-Double.infinity) < Float128(0), true, "-infinity < 0")
 test.eq(Float128(0) < Float128(+Double.infinity), true, "0 < +infinity")
 test.eq(Float128(-2.0) < Float128(+1.0), true, "-2.0 < +1.0")
 test.eq(Float128(-2.5) < Float128(-2.0), true, "-2.5 < -2.0")
 test.eq(Float128(+2.0) < Float128(+2.5), true, "+2.0 < +2.5")
+
+print((Float128(1.0/3.0)+Float128(1.0/6.0)).asDouble)
+
+print(Float128.ldexp(Float128(1.0), 0).asDouble)
+
 test.done()
