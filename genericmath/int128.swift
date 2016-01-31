@@ -182,6 +182,12 @@ public func <<(lhs:UInt128, rhs:UInt128)->UInt128 {
     // let s:UInt32 = UInt128(128) < rhs ? rhs.value.3 : 128
     return lhs << UInt32(rhs)
 }
+public func <<=(inout lhs:UInt128, rhs:UInt32) {
+    lhs = lhs << rhs
+}
+public func <<=(inout lhs:UInt128, rhs:UInt128) {
+    lhs = lhs << rhs
+}
 public func >>(lhs:UInt128, rhs:UInt32)->UInt128 {
     if rhs == 0  { return lhs }
     if rhs > 128 { return UInt128(0) }
@@ -206,6 +212,12 @@ public func >>(lhs:UInt128, rhs:UInt128)->UInt128 {
     // let s = UInt128(128) < rhs ? rhs.value.3 : 128
     return lhs >> UInt32(rhs)
 }
+public func >>=(inout lhs:UInt128, rhs:UInt32) {
+    lhs = lhs >> rhs
+}
+public func >>=(inout lhs:UInt128, rhs:UInt128) {
+    lhs = lhs >> rhs
+}
 // and other bitwise ops
 // let us define other binops as well
 extension UInt128 : BitwiseOperationsType {
@@ -219,6 +231,9 @@ public func & (lhs:UInt128, rhs:UInt128)->UInt128 {
             lhs.value.3 & rhs.value.3
     )
 }
+public func &=(inout lhs:UInt128, rhs:UInt128) {
+    lhs = lhs & rhs
+}
 public func | (lhs:UInt128, rhs:UInt128)->UInt128 {
     return UInt128(
         lhs.value.0 | rhs.value.0,
@@ -227,6 +242,9 @@ public func | (lhs:UInt128, rhs:UInt128)->UInt128 {
         lhs.value.3 | rhs.value.3
     )
 }
+public func |=(inout lhs:UInt128, rhs:UInt128) {
+    lhs = lhs | rhs
+}
 public func ^ (lhs:UInt128, rhs:UInt128)->UInt128 {
     return UInt128(
         lhs.value.0 ^ rhs.value.0,
@@ -234,6 +252,9 @@ public func ^ (lhs:UInt128, rhs:UInt128)->UInt128 {
         lhs.value.2 ^ rhs.value.2,
         lhs.value.3 ^ rhs.value.3
     )
+}
+public func ^=(inout lhs:UInt128, rhs:UInt128) {
+    lhs = lhs ^ rhs
 }
 // multiplication at last!
 public extension UInt128 {
@@ -720,19 +741,34 @@ public prefix func ~(i:Int128)->Int128 {
 public func & (lhs:Int128, rhs:Int128)->Int128 {
     return Int128(lhs.value & rhs.value)
 }
+public func &=(inout lhs:Int128, rhs:Int128) {
+    lhs = lhs & rhs
+}
 public func | (lhs:Int128, rhs:Int128)->Int128 {
     return Int128(lhs.value | rhs.value)
 }
+public func |=(inout lhs:Int128, rhs:Int128) {
+    lhs = lhs | rhs
+}
 public func ^ (lhs:Int128, rhs:Int128)->Int128 {
     return Int128(lhs.value ^ rhs.value)
+}
+public func ^=(inout lhs:Int128, rhs:Int128) {
+    lhs = lhs ^ rhs
 }
 public func <<(lhs:Int128, rhs:Int128)->Int128 {
     let u = lhs.abs.value << rhs.abs.value
     return lhs.isSignMinus ? -Int128(u) : Int128(u)
 }
+public func <<=(inout lhs:Int128, rhs:Int128)->Int128 {
+    lhs = lhs << rhs
+}
 public func >>(lhs:Int128, rhs:Int128)->Int128 {
     let u = lhs.abs.value >> rhs.abs.value
     return lhs.isSignMinus ? -Int128(u) : Int128(u)
+}
+public func >>=(inout lhs:Int128, rhs:Int128)->Int128 {
+    lhs = lhs >>= rhs
 }
 // and [+-*/%]=
 public func +=(inout lhs:Int128, rhs:Int128) {
