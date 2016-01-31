@@ -198,7 +198,7 @@ public func >>(lhs:UInt128, rhs:UInt32)->UInt128 {
         return UInt128(0, lhs.value.0, lhs.value.1, lhs.value.2)
     }
     var r = UInt128()
-    let rhs_32 = 32 - rhs
+    let rhs_32 = UInt32(32 - Int32(rhs))
     let mask = ~0 >> rhs_32
     r.value.0 = lhs.value.0 >> rhs
     let r1 = (lhs.value.0 & mask) << rhs_32

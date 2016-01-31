@@ -97,6 +97,21 @@ test.eq(Int128(-1)<<1, Int128(-2), "Int128(-1)<<1 == Int128(-2)")
 test.eq(Int128(-2)>>1, Int128(-1), "Int128(-2)>>1 == Int128(-1)")
 //
 print("#### Float128")
+
+test.eq((+Float128(0.0)).isZero,            true,   "+Float128(0.0) is Zero")
+test.eq((-Float128(0.0)).isZero,            true,   "-Float128(0.0) is Zero")
+test.eq((+Float128(0.0)).isSignMinus,       false,  "+Float128(0.0) is positive")
+test.eq((-Float128(0.0)).isSignMinus,       true,   "-Float128(0.0) is negative")
+test.eq((+Float128.infinity).isInfinite,    true,   "+Float128.infinity is Infinite")
+test.eq((-Float128.infinity).isInfinite,    true,   "-Float128.infinity is Infinite")
+test.eq((+Float128.infinity).isSignMinus,   false,  "+Float128.infinity is positive")
+test.eq((-Float128.infinity).isSignMinus,   true,   "-Float128.infinity is negative")
+test.eq(Float128.NaN.isNaN,                 true,   "Float128.NaN is NaN")
+test.eq(Float128.quietNaN.isNaN,            true,   "Float128.quietNaN is NaN")
+test.ne(Float128.NaN, Float128.NaN,                 "Float128.NaN != itself")
+test.ne(Float128.quietNaN, Float128.quietNaN,       "Float128.quetNaN != itself")
+
+/*
 print(Float128(1.0))
 print(Float128(-2.0))
 print(Float128(1.0/3.0))
@@ -106,5 +121,6 @@ print(Float128(1.0).frexp)
 print(Double(Float128(1.0)))
 print(Double(Float128(-2.0)))
 print(Double(Float128(1.0/3.0)))
+*/
 
 test.done()

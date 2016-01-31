@@ -1,6 +1,6 @@
 MOD=GenericMath
 BIN=main
-MODSRC=genericmath/int128.swift
+MODSRC=genericmath/int128.swift genericmath/float128.swift
 BINSRC=$(MODSRC) genericmath/main.swift genericmath/tap.swift
 MODULE=$(MOD).swiftmodule $(MOD).swiftdoc
 SWIFTC=swiftc
