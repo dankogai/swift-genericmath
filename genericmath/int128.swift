@@ -537,14 +537,14 @@ extension UInt128 : UnsignedIntegerType {
 public extension UInt128 {
     /// give the location of the most significant bit
     /// -1 if none found (meaning zero)
-    public var msb:Int {
-        var msb = value.0.msb
-        if msb != 0 { return msb + 96 }
-        msb = value.1.msb
-        if msb != 0 { return msb + 64 }
-        msb = value.2.msb
-        if msb != 0 { return msb + 32 }
-        return value.3.msb
+    public var msbAt:Int {
+        var msbAt = value.0.msbAt
+        if msbAt != 0 { return msbAt + 96 }
+        msbAt = value.1.msbAt
+        if msbAt != 0 { return msbAt + 64 }
+        msbAt = value.2.msbAt
+        if msbAt != 0 { return msbAt + 32 }
+        return value.3.msbAt
     }
 }
 //

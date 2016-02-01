@@ -8,19 +8,20 @@ Float128(1.0).isPowerOf2
 Float128(1.5).isPowerOf2
 Float128.infinity.isPowerOf2
 Float128.NaN.isPowerOf2
-UInt128.max.msb
-UInt64.max.msb
-(UInt64.max >> 1).msb
-UInt64(1).msb
-UInt64(0).msb
-UInt32.max.msb
-UInt16.max.msb
-UInt8.max.msb
-UInt.max.msb
+UInt128.max.msbAt
+UInt64.max.msbAt
+(UInt64.max >> 1).msbAt
+UInt64(1).msbAt
+UInt64(0).msbAt
+UInt32.max.msbAt
+UInt16.max.msbAt
+UInt8.max.msbAt
+UInt.max.msbAt
 
-var m = Float128(2.0/3.0) * Float128(3)
+
+var m = Float128(2.0/3.0) * Float128(1.0/3.0)
 m.asDouble
 m._toBitPattern().toString(16)
 m = Float128(0.1)*Float128(0.1)*Float128(0.1)
-
-m.asDouble
+m = Float128(UInt64.max)
+m.asUInt64 == UInt64.max

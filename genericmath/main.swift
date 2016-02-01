@@ -132,11 +132,15 @@ test.eq(Float128(0) < Float128(+Double.infinity), true, "0 < +infinity")
 test.eq(Float128(-2.0) < Float128(+1.0), true, "-2.0 < +1.0")
 test.eq(Float128(-2.5) < Float128(-2.0), true, "-2.5 < -2.0")
 test.eq(Float128(+2.0) < Float128(+2.5), true, "+2.0 < +2.5")
-
 /*
-print((Float128(1.0/3.0)+Float128(1.0/6.0)).asDouble)
-
-print(Float128.ldexp(Float128(1.0), 0).asDouble)
+for i:UInt64 in 0...63 {
+    let v = UInt64.max >> i
+    test.eq(Float128(v).asUInt64, v, "Float128(UInt64.max >> \(i)) == \(v)")
+}
+for i:Int64 in 0...62 {
+    let v = Int64.max >> i
+    test.eq(Float128(+v).asInt64,  v, "Float128(+(Int64.max >> \(i))) == +\(v)")
+    test.eq(Float128(-v).asInt64, -v, "Float128(-(Int64.max >> \(i))) == -\(v)")
+}
 */
-
 test.done()
