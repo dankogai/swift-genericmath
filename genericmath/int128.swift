@@ -535,8 +535,8 @@ extension UInt128 : UnsignedIntegerType {
 }
 // aux. stuff
 public extension UInt128 {
-    /// give the location of the most significant bit + 1
-    /// 0 if none
+    /// give the location of the most significant bit
+    /// -1 if none found (meaning zero)
     public var msb:Int {
         var msb = value.0.msb
         if msb != 0 { return msb + 96 }
@@ -857,3 +857,4 @@ extension Int128 : RandomAccessIndexType {
     }
 }
 extension Int128: SignedIntegerType {}
+

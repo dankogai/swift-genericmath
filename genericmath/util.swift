@@ -21,6 +21,6 @@ public extension Double {
 }
 public extension UnsignedIntegerType {
     public var msb:Int {
-        return Double.frexp(Double(self.toUIntMax())).1
+        return Double.frexp(Double(self.toUIntMax())).1 - 1
     }
 }

@@ -8,7 +8,7 @@
 
 // cf. https://en.wikipedia.org/wiki/Quadruple-precision_floating-point_format
 
-// import Foundation
+import Foundation
 public struct Float128 {
     var value:UInt128
     public init() {
@@ -72,7 +72,7 @@ public struct Float128 {
             let mt = m.value >> 60
             var mu = (UInt64(mt.value.2 & 0x000f_ffff) << 32) | UInt64(mt.value.3)
             mu |= 0x3fe0_0000_0000_0000
-            // print("mu:", String(format:"%016lx", mu), "e:", e)
+            // print("mu:", String(format:"%016lx", mu), "e:", e, "d:", unsafeBitCast(mu, Double.self))
             let result = Double.ldexp(unsafeBitCast(mu, Double.self), e)
             return self.isSignMinus ? -result : +result
         }
@@ -112,6 +112,7 @@ public struct Float128 {
             return m
         }
         var result = m.frexp.0
+        result.value.value.0 &= 0x8000_ffff
         result.value.value.0 |= UInt32(e - 1 + 0x3FFF) << 16
         return result
     }
@@ -181,33 +182,6 @@ extension Float128: SignedNumberType {}
 public prefix func + (f128:Float128)->Float128 {
     return f128
 }
-public func + (lhs:Float128, rhs:Float128)->Float128 {
-    let (ml, el) = lhs.frexp
-    let (mr, er) = rhs.frexp
-    var vl = ml.value & Float128.mmask
-    var vr = mr.value & Float128.mmask
-    let shift = el - er
-    var e = el
-    print("vl=\(vl.toString(16)), vr=\(vr.toString(16)), el=\(el), er=\(er),shift=\(shift)")
-    if (shift < 0) {
-        if shift > Float128.sbits { return rhs }
-        e = er
-        vl >>= UInt32(-shift)
-    } else if (shift > 0) {
-        if shift > Float128.sbits { return lhs }
-        e = el
-        vr >>= UInt32(+shift)
-    }
-    print("vl=\(vl.toString(16)), vr=\(vr.toString(16)), e=\(e)")
-    var v = vl + vr
-    v.value.0 += 0x00008000 // implicit one
-    print(" v=\(v.toString(16))")
-    v.value.0 |= 0x3ffe_0000
-    print(" v=\(v.toString(16)), e-1=\(e-1)")
-    print(Float128(rawValue: v).asDouble)
-    let result = Float128.ldexp(Float128(rawValue: v), e)
-    return result
-}
 public prefix func - (f128:Float128)->Float128 {
     guard !f128.isNaN else { return f128 }
     var result = f128
@@ -251,4 +225,64 @@ extension Float128 : FloatingPointType {
         return self.value
     }
 }
-
+public func + (lhs:Float128, rhs:Float128)->Float128 {
+    fatalError("unimplemented")
+    /*
+    let (ml, el) = lhs.frexp
+    let (mr, er) = rhs.frexp
+    var vl = ml.value & Float128.mmask
+    var vr = mr.value & Float128.mmask
+    let shift = el - er
+    var e = el
+    print("vl=\(vl.toString(16)), vr=\(vr.toString(16)), el=\(el), er=\(er),shift=\(shift)")
+    if (shift < 0) {
+        if shift > Float128.sbits { return rhs }
+        e = er
+        vl >>= UInt32(-shift)
+    } else if (shift > 0) {
+        if shift > Float128.sbits { return lhs }
+        e = el
+        vr >>= UInt32(+shift)
+    }
+    print("vl=\(vl.toString(16)), vr=\(vr.toString(16)), e=\(e)")
+    var v = vl + vr
+    v.value.0 += 0x00008000 // implicit one
+    print(" v=\(v.toString(16))")
+    v.value.0 |= 0x3ffe_0000
+    print(" v=\(v.toString(16)), e-1=\(e-1)")
+    print(Float128(rawValue: v).asDouble)
+    let result = Float128.ldexp(Float128(rawValue: v), e)
+    return result
+    */
+}
+public func * (lhs:Float128, rhs:Float128)->Float128 {
+    let (ml, el) = lhs.frexp
+    let (mr, er) = rhs.frexp
+    if lhs.isPowerOf2 {
+        return Float128.ldexp(mr, el+er)
+    }
+    if rhs.isPowerOf2 {
+        return Float128.ldexp(ml, el+er)
+    }
+    //       Implicit 1         Half mantissa
+    let vl = UInt128(1) << 56 | (ml.value & Float128.mmask) >> 56
+    let vr = UInt128(1) << 56 | (mr.value & Float128.mmask) >> 56
+    var v = vl * vr
+    var e = el + er + 0x3fff - 2    // -2 to offset implicit 1
+    if v.msb > 112 {
+        v >>= UInt32(1)
+        e += 1
+    }
+    v.value.0 &= 0x0000_ffff
+    v.value.0 |= UInt32(e) << 16
+    let isSignMinus = lhs.isSignMinus
+        ? rhs.isSignMinus ? false : true
+        : rhs.isSignMinus ? true : false
+    return isSignMinus ? -Float128(rawValue:v) : +Float128(rawValue:v)
+}
+public func / (lhs:Float128, rhs:Float128)->Float128 {
+    fatalError("unimplemented")
+}
+public func % (lhs:Float128, rhs:Float128)->Float128 {
+    fatalError("unimplemented")
+}
